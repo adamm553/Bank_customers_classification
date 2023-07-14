@@ -1,0 +1,81 @@
+---
+title: "Projekt RR"
+author: "Adam Piątek"
+date: "2023-06-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Import bibliotek
+```{r}
+library(dplyr)
+library(rpart)
+library(rpart.plot)
+library(caret)
+```
+
+Wczytywanie danych
+```{r}
+df <- read.csv('/Users/adam/Desktop/4 semestr/Analiza_strukturalna_zbiorów_danych/projekt2/bank.csv',sep=';')
+head(df)
+```
+
+```{r}
+unique(df$poutcome)
+```
+
+Wycinanie zbiorów danych
+```{r}
+new_df <- df[,c("age", "balance", "day", "duration", "campaign", "pdays", "previous", "y")]
+head(new_df)
+```
+Przerabianie zbioru danych
+```{r}
+new_df %>% mutate(y = factor(y, labels = c("yes", "no"))) -> new_df
+head(new_df)
+```
+
+```{r}
+prop.table(table(df$loan))
+```
+Tworzenie zbioru treningowego i testowego
+```{r}
+library(caTools)
+ind <- sample.split(Y=new_df, SplitRatio = 0.7)
+train <- new_df[ind,]
+test <- new_df[!ind,]
+```
+Tworzenie drzewa decyzyjnego
+```{r}
+tree <- rpart(y ~ ., data = train)
+summary(tree)
+#Model nie jest przeuczony
+```
+```{r}
+rpart.plot(tree, type = 1, fallen.leaves = T, cex = 0.7, extra = 2)
+```
+Macierz konfuzji
+```{r}
+prediction <- predict(tree,test, type="class")
+conf_matrix<-table(prediction, test$y)
+conf_matrix
+```
+Jakość zbiorów 
+```{r}
+train_pred <- predict(tree, train, type="class")
+test_pred <- predict(tree, test, type="class")
+
+cat('Training Accuracy: ', mean(train_pred == train$y), '\n',
+    'Test Set Accuracy: ', mean(test_pred == test$y), sep='')
+#Dokładność zbiorów treningowego i testowego jest wysoka
+```
+
+```{r}
+test_pred <- predict(tree, test, type="class")
+model.class.pred.tb <- as_tibble(test_pred)
+caret::confusionMatrix(test_pred, test$y)
+#Dokładność modelu wynosi 0.882. Oznacza to że jest on dokładny
+```
+
