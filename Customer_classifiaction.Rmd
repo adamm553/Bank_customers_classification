@@ -1,5 +1,5 @@
 ---
-title: "Projekt RR"
+title: "Bank Customer Classification"
 author: "Adam Piątek"
 date: "2023-06-07"
 output: html_document
