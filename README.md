@@ -1,4 +1,4 @@
-# Projekt RR
+# Bank Customer Classification
 
 Author: Adam Piątek
 Date: 2023-06-07
